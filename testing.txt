@@ -1,0 +1,6 @@
+git clone https://github.com/chda6313/SemesterProject
+
+git add filename.extension
+git push
+
+git status
