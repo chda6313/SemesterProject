@@ -1,6 +1,8 @@
 git clone https://github.com/chda6313/SemesterProject
 
 git add filename.extension
+git commit -m "comment goes here"
+
 git push
 
 git status
