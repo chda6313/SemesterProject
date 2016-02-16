@@ -12,8 +12,7 @@
 
 **Motivation:** We wanted to gain some practical knowledge not in only in games, but also web networking and potentially apps.
 
-**Risks:** 
-* None of us knew eachother prior to the project/this semester
+**Risks:** * None of us knew eachother prior to the project/this semester
 * Lack of availability for some resources (specifically a dedicated web server)
 * None of us have huge amounts of experience with JavaScript or HTML
 * None of us have experience with graphics
