@@ -24,14 +24,17 @@
 * Consistent group meetings
 
 **List of Requirements:** 
+
 **USER**
 * As a user, I want to be able to connect so that I can play.
 * As a user, I want to be able to learn the controls quickly so that I can play faster.
+
 **FUNCTIONAL**
 * As a developer, I want a hitbox so that users can recognize when they are dead.
 * As a developer, I want a login page so that I can keep track of users.
 * As a developer, I want the ships to be able move around.
 * As a developer, I want the ships to be able to shoot.
+
 **NON-FUNCTIONAL**
 * As a developer, I want a server so that I can host the game, and users can connect.
 * As a developer, I would like a faster server so that the game can perform more capably.
