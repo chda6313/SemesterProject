@@ -41,4 +41,6 @@
 
 **Methodology:** Agile
 
-**Project Tracking Software:** GitHub
+**Project Tracking Software:** GitHub, Trello
+
+[Trello Page](https://trello.com/b/OIUHQmfh/3308-project)
