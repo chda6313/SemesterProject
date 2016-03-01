@@ -1,6 +1,9 @@
-color c = color(255); //default color is white
+color shipCol = color(255); //default color is white
+color mCol = color(255,0,0);
 int x=0;
 int y=250;
+int clock=0;
+boolean isShooting=false;
 boolean[] keys = {false, false, false, false};//w,a,s,d
 void settings() {
 
@@ -8,19 +11,21 @@ void settings() {
 }
 void setup() {
   size(500, 500);
-  frameRate(120);
+  frameRate(60);
   background(5);
 }
 
 void draw() {  
   background(5);
   updateLocation();
-  fill(c);
-  ellipse(x,y,10,10);
-  fill(color(255,255,0));
+  fill(shipCol);
+  ellipse(x,y,15,15);
+  
+  fill(mCol);
   ellipse(mouseX, mouseY, 10,10);
+  clock = clock+1;
+  shoot();
 }
-
 
 
 void updateLocation(){
@@ -36,10 +41,18 @@ void updateLocation(){
   if (keys[3]){//d
     x=x+1;
   }
-  
-  
 }
 
+
+void shoot(){
+  isShooting=(((clock % 20)>=0)&&((clock % 20)<=5));
+  if (isShooting){
+    mCol = color(255,0,0);
+  }else{
+    mCol = color(0,0,255);
+  }
+
+}
 
 
 void keyPressed() {
@@ -56,6 +69,8 @@ void keyPressed() {
     keys[3]=true;
   }
 }
+
+
 void keyReleased() {
   if (key=='w') {
     keys[0]=false;
