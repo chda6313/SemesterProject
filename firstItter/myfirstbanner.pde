@@ -7,7 +7,7 @@ boolean isShooting=false;
 boolean[] keys = {false, false, false, false};//w,a,s,d
 float aimAngle = 0;
 
-Ship[] ships = new Ship[3];
+Ship[] ships = new Ship[1];
 void settings() {
 }
 void setup() {
