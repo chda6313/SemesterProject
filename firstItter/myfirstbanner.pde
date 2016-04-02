@@ -1,12 +1,14 @@
-color shipCol = color(10); //default color is white
+color shipCol = color(10); //default color is black
 color mCol = color(255, 0, 0);
 int x=250;
 int y=250;
 int clock=0;
 boolean isShooting=false;
-boolean[] keys = {false, false, false, false};//w,a,s,d
+boolean[] keys = {false, false, false, false,false};//w,a,s,d, mouseclick
 boolean[][] occupied = new boolean[500][500];
 float aimAngle = 0;
+color tan = color(254,232,198);
+color blackbrown = color(75,45,30);
 
 Ship[] ships = new Ship[1]; //create array of players, should be able to take data from SQL
 Enemy[] enemies = new Enemy[1];
@@ -16,10 +18,8 @@ void setup() {
   //for (int i=0; i<ships.length; i++) {
     //ships[i] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, i);//initialize the ships at random locations
  // }
-  color tan = color(254,232,198);
-  color black = color(10,10,10);
   ships[0] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, 1,tan);
-  enemies[0] = new Enemy(int(random(0, 500)), int(random(0, 500)), 0, 1,black);
+  enemies[0] = new Enemy(int(random(0, 500)), int(random(0, 500)), 0, 1,blackbrown);
   size(500, 500);//set window size
   frameRate(600);//set refresh rate
   background(240);//background color 0=black 255=white
@@ -49,7 +49,7 @@ class Ship {
   float npcAng; //the angle from the player to the NPC
   color initCol;
   color col;
-  int bMax =100;
+  int bMax =100; //here
   int bNum=0;
   int bLife = 6000;
   int bulletNum = 100;
@@ -68,21 +68,22 @@ class Ship {
     aim=initAim;
     //initCol = color(random(0, 255), random(0, 255), random(0, 255));
     initCol = shipColor;
+    col = shipColor;
     for (int i=0; i<bullets.length; i++) {//creating a new ship also gives it blank bullets
-      bullets[i] = new Bullet(x, y, aim);
+      bullets[i] = new Bullet(x, y, aim,shipCol);
     }
   }
   void updateLocation() {//used to move around
-    if (keys[0]) {//w
+    if (keys[0] && y >=10) {//w
       y=y-1;
     }
-    if (keys[1]) {//a
+    if (keys[1] && x >=10) {//a
       x=x-1;
     }
-    if (keys[2]) {//s
+    if (keys[2] && y<=490) {//s
       y=y+1;
     }
-    if (keys[3]) {//d
+    if (keys[3] && x<=490) {//d
       x=x+1;
     }
  
@@ -106,7 +107,7 @@ class Ship {
     }
   }
   void shoot() {
-    bullets[bNum] = new Bullet(x, y, aim);// x,y, aim make the bullet inherit its path
+    bullets[bNum] = new Bullet(x, y, aim,tan);// x,y, aim make the bullet inherit its path
     bullets[bNum].lifespan =0;//setting to 0 starts the bullet life
     bNum++;//makes the ship not reset the same bullet.
     if (bNum >= bMax) {
@@ -114,18 +115,21 @@ class Ship {
     }
   }
   void checkHit() {
-    for (int i=0; i<4; i++) {
-      for(int j=0;j<4;j++){
+    for (int i=x-4; i<x+5; i++) {
+      for(int j=y-4;j<y+5;j++){
         if(occupied[i][j] == true) {
-          break;
+          col = color(255,0,0);
+          timesHit++;
+          return;
         }
       }
     } 
-    timesHit++;
-    if(timesHit > 4) {
+    col = initCol;
+    //timesHit++;
+    //if(timesHit > 4) {
       //shipdestroy();
-    }
-    col = color(255,0,0);
+    //}
+    //col = color(255,0,0);
       
   }
   
@@ -161,9 +165,9 @@ class Enemy extends Ship {
     y=initY;
     aim=initAim;
     //initCol = color(random(0, 255), random(0, 255), random(0, 255));
-    initCol = shipColor;
+    col = shipColor;
     for (int i=0; i<bullets.length; i++) {//creating a new ship also gives it blank bullets
-      bullets[i] = new Bullet(x, y, aim);
+      bullets[i] = new Bullet(x, y, aim,shipCol);
     }
   }
  
@@ -198,8 +202,18 @@ class Enemy extends Ship {
       }
     }
     moveRandom();//if there's no bullet close, move, but do so according to the randoms
-    aimshoot(npcAng);
+    aim = npcAng;
+    //aim(npcAng);
+    this.checkHit();
     this.draw();
+    
+    for (int i=0; i<bullets.length; i++) {
+      if ((bullets[i].lifespan >=0) && (bullets[i].lifespan < bLife)) {//lets you "delete" bullets by setting lifespan to -1
+        bullets[i].lifespan++;//longer lifespan will cause bullets to be on screen longger
+        bullets[i].updateLocation();
+        bullets[i].draw();
+      }
+    }
   }
   void moveRandom() {
     int xRand = (int)random(0,1500);
@@ -235,19 +249,12 @@ class Enemy extends Ship {
       y--;
     }
   }
-  void aimshoot(float npcAng) {  //aims and shoots depending on it's distance to the player and on randomness
-    aim = npcAng;
-    /*if(npcAng < PI) {
-      aim = npcAng + PI;
-    }
-    else {
-      aim = npcAng - PI; //always aims toward the player
-    }*/
-    int distance = (int)sqrt((ships[0].x-x)^2 + (ships[0].y-y)^2);
-    int randNum = (int)random(0,250);
-    int difference = distance + randNum;
-    if (distance < 30 || difference < 40) {
-      shoot();
+  void shoot() {
+    bullets[bNum] = new Bullet(x, y, aim,shipCol);// x,y, aim make the bullet inherit its path
+    bullets[bNum].lifespan =0;//setting to 0 starts the bullet life
+    bNum++;//makes the ship not reset the same bullet.
+    if (bNum >= bMax) {
+      bNum = 0;//end of array loops back
     }
   }
   void shipDestroy() {
@@ -265,11 +272,13 @@ class Bullet {
   float aim;
   int lifespan;
   boolean dead; //when the bullet goes out of range or hits someone, it's 'dead' and will be deleted
-  Bullet(int x, int y, float angle) {
+  color bulletColor;
+  Bullet(int x, int y, float angle, color bulletColor) {
     aim = angle;
     originX = (int)(x + 35*cos(aim));
     originY = (int)(y + 35*sin(aim));
     lifespan = -1;
+    this.bulletColor = bulletColor;
   }
   void updateLocation() {
     if(currentX > 0 && currentX < 500 && currentY > 0 && currentY < 500) {
@@ -282,6 +291,7 @@ class Bullet {
     }    
   }
   void draw() {
+    fill(bulletColor);
     ellipse(currentX, currentY, 5, 5);//pew pew
   }
 }
@@ -291,10 +301,10 @@ class Bullet {
 
 
 void shoot() {
-  isShooting=(((clock % 20)==0));//clock makes all the ships shoot together
+  isShooting=(((clock % 60)==0));//clock makes all the ships shoot together
   if (isShooting) {
-    for (int i=0; i<ships.length; i++) {
-      ships[i].shoot();
+    for (int i=0; i<enemies.length; i++) {
+      enemies[i].shoot();
     }
     mCol = color(255, 0, 0);//blinks cursor
   } else {
@@ -302,8 +312,8 @@ void shoot() {
   }
 }
 
-void mousePressed() {
-  
+void mouseClicked() {
+  ships[0].shoot();
 }
 
 void keyPressed() {//as long as a key is pressed, use it in program
