@@ -9,6 +9,8 @@ boolean[][] occupied = new boolean[500][500];
 float aimAngle = 0;
 color tan = color(254,232,198);
 color blackbrown = color(75,45,30);
+int playerScore = 0;
+int npcScore = 0;
 
 Ship[] ships = new Ship[1]; //create array of players, should be able to take data from SQL
 Enemy[] enemies = new Enemy[1];
@@ -18,9 +20,9 @@ void setup() {
   //for (int i=0; i<ships.length; i++) {
     //ships[i] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, i);//initialize the ships at random locations
  // }
-  ships[0] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, 1,tan);
+  ships[0] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, 0,tan);
   enemies[0] = new Enemy(int(random(0, 500)), int(random(0, 500)), 0, 1,blackbrown);
-  size(500, 500);//set window size
+  size(501, 601);//set window size
   frameRate(600);//set refresh rate
   background(240);//background color 0=black 255=white
 }
@@ -28,6 +30,21 @@ void setup() {
 void draw() {
   background(240);//without this line, past images of ships would stay on screen
   for (int i=0; i<ships.length; i++) {//for all ships
+    //fill(0,0,0);
+    //rect(0,0,500,500);
+    line(0,0,0, 500);
+    line(0,0,500,0);
+    line(0,500,500,500);
+    line(500,0,500,500);
+    fill(195,255,195);
+    rect(0,500,500,600);
+    fill(0,0,0);
+    textSize(14);
+    text("player's score",60,530);
+    text("NPC's score",370,530);
+    textSize(20);
+    text(playerScore,100,550);
+    text(npcScore,400,550);
     ships[i].updateLocation();//move the ships
     enemies[i].updateLocation();
     stroke(shipCol);
@@ -80,10 +97,10 @@ class Ship {
     if (keys[1] && x >=10) {//a
       x=x-1;
     }
-    if (keys[2] && y<=490) {//s
+    if (keys[2] && y<=491) {//s
       y=y+1;
     }
-    if (keys[3] && x<=490) {//d
+    if (keys[3] && x<=491) {//d
       x=x+1;
     }
  
@@ -99,7 +116,7 @@ class Ship {
     this.draw();
 
     for (int i=0; i<bullets.length; i++) {
-      if ((bullets[i].lifespan >=0) && (bullets[i].lifespan < bLife)) {//lets you "delete" bullets by setting lifespan to -1
+      if ((bullets[i].lifespan >=0) && (bullets[i].lifespan < bLife && bullets[i].currentY < 500)) {//lets you "delete" bullets by setting lifespan to -1
         bullets[i].lifespan++;//longer lifespan will cause bullets to be on screen longger
         bullets[i].updateLocation();
         bullets[i].draw();
@@ -118,8 +135,15 @@ class Ship {
     for (int i=x-4; i<x+5; i++) {
       for(int j=y-4;j<y+5;j++){
         if(occupied[i][j] == true) {
+          if (col != color(255,0,0)) {
+            if(shipNum == 0) {
+              npcScore++;
+            }
+            else{
+              playerScore++;
+            }
+          }
           col = color(255,0,0);
-          timesHit++;
           return;
         }
       }
@@ -133,17 +157,6 @@ class Ship {
       
   }
   
-  boolean checkRange(int x, int y) { //this checks whether there are any bullets within 30 spaces of the range x,y
-    boolean InRange = false;
-    for (int i=0; i<30; i++) {
-      for(int j=0;j<30;j++){
-        if(occupied[i][j] == true) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
   void shipDestroy(){
     color c = color(0,255,0);
     fill(c);
@@ -165,6 +178,7 @@ class Enemy extends Ship {
     y=initY;
     aim=initAim;
     //initCol = color(random(0, 255), random(0, 255), random(0, 255));
+    initCol = shipColor;
     col = shipColor;
     for (int i=0; i<bullets.length; i++) {//creating a new ship also gives it blank bullets
       bullets[i] = new Bullet(x, y, aim,shipCol);
@@ -180,35 +194,23 @@ class Enemy extends Ship {
     if (ships[0].x < x) {
       npcAng=npcAng+PI;  //adjust for arcTan range
     }
-    float diff = npcAng - ships[0].aim; // the difference of the players aim and the NPC's position
-    if(diff >= -.139 && diff < .139) {     
-      if(checkRange(x,y) == true) {    // if there's a bullet near, get out of the way
-        if(cos(ships[0].aim) >= 0) {
-          x = x + 1;
-          xmov = 1;
-        }
-        else {
-          x = x - 1;
-          xmov = -1;
-        }
-        if(sin(ships[0].aim) >= 0) {
-          y = y + 1;
-          ymov = 1;
-        }
-        else {
-          y = y - 1;
-          ymov = -1;
-        }
+    /*Vector localRange = checkRange(x,y);
+    if(localRange.x != -1) {    // This should tell the NPC to start moving if there is a bullet nearby, but it causes the game to freeze
+      if(xmov == 0 && ymov == 0) {
+        int xRand = (int)random(0,2);
+        xmov = xRand - 1;
+        int yRand = (int)random(0,2);
+        ymov = yRand - 1;
       }
-    }
-    moveRandom();//if there's no bullet close, move, but do so according to the randoms
+    }*/
+    moveRandom();
     aim = npcAng;
     //aim(npcAng);
     this.checkHit();
     this.draw();
     
     for (int i=0; i<bullets.length; i++) {
-      if ((bullets[i].lifespan >=0) && (bullets[i].lifespan < bLife)) {//lets you "delete" bullets by setting lifespan to -1
+      if ((bullets[i].lifespan >=0) && (bullets[i].lifespan < bLife && bullets[i].currentY < 500)) {//lets you "delete" bullets by setting lifespan to -1
         bullets[i].lifespan++;//longer lifespan will cause bullets to be on screen longger
         bullets[i].updateLocation();
         bullets[i].draw();
@@ -236,6 +238,9 @@ class Enemy extends Ship {
     else if(y>=490) {
       ymov = -1;
     }
+    move();
+  }
+  void move() {
     if(xmov == 1) {
       x++;
     }
@@ -261,6 +266,25 @@ class Enemy extends Ship {
     color c = color(255,255,255);
     col = c;
     bulletNum = 0;
+  }
+  Vector checkRange(int x, int y) { //this checks whether there are any bullets within 30 spaces of the range x,y
+    for (int i=x-15; i<x+16; i++) {
+      for(int j=y-15; j<x+16; j++){
+        if(occupied[i][j] == true) {
+          return new Vector(i,j);
+        }
+      }
+    }
+    return new Vector(-1,-1);
+  }
+}
+
+class Vector {
+  int x;
+  int y;
+  Vector(int x, int y) {
+    this.x = x;
+    this.y = y;
   }
 }
 
@@ -296,10 +320,6 @@ class Bullet {
   }
 }
 
-
-
-
-
 void shoot() {
   isShooting=(((clock % 60)==0));//clock makes all the ships shoot together
   if (isShooting) {
@@ -317,32 +337,32 @@ void mouseClicked() {
 }
 
 void keyPressed() {//as long as a key is pressed, use it in program
-  if (key=='w') {
+  if (key=='w' || key == 'W') { //in case caps lock is accidentally pressed, it also works when capitalized
     keys[0]=true;
   }
-  if (key=='a') {
+  if (key=='a' || key == 'A') {
     keys[1]=true;
   }
-  if (key=='s') {
+  if (key=='s' || key == 'S') {
     keys[2]=true;
   }
-  if (key=='d') {
+  if (key=='d' || key == 'D') {
     keys[3]=true;
   }
 }
 
 
 void keyReleased() {//other case
-  if (key=='w') {
+  if (key=='w' || key == 'W') {
     keys[0]=false;
   }
-  if (key=='a') {
+  if (key=='a' || key == 'A') {
     keys[1]=false;
   }
-  if (key=='s') {
+  if (key=='s' || key == 'S') {
     keys[2]=false;
   }
-  if (key=='d') {
+  if (key=='d' || key == 'D') {
     keys[3]=false;
   }
 }
