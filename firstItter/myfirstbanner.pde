@@ -1,34 +1,41 @@
-color shipCol = color(255); //default color is white
+color shipCol = color(10); //default color is white
 color mCol = color(255, 0, 0);
 int x=250;
 int y=250;
 int clock=0;
 boolean isShooting=false;
 boolean[] keys = {false, false, false, false};//w,a,s,d
+boolean[][] occupied = new boolean[500][500];
 float aimAngle = 0;
 
-Ship[] ships = new Ship[10]; //create array of players, should be able to take data from SQL
+Ship[] ships = new Ship[1]; //create array of players, should be able to take data from SQL
+Enemy[] enemies = new Enemy[1];
 void settings() {//this allows for dynamic sizeing etc
 }
 void setup() {
-  for (int i=0; i<ships.length; i++) {
-    ships[i] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, i);//initialize the ships at random locations
-  }
-
+  //for (int i=0; i<ships.length; i++) {
+    //ships[i] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, i);//initialize the ships at random locations
+ // }
+  color tan = color(254,232,198);
+  color black = color(10,10,10);
+  ships[0] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, 1,tan);
+  enemies[0] = new Enemy(int(random(0, 500)), int(random(0, 500)), 0, 1,black);
   size(500, 500);//set window size
   frameRate(600);//set refresh rate
-  background(5);//background color 0=black 255=white
+  background(240);//background color 0=black 255=white
 }
 
 void draw() {
-  background(5);//without this line, past images of ships would stay on screen
+  background(240);//without this line, past images of ships would stay on screen
   for (int i=0; i<ships.length; i++) {//for all ships
     ships[i].updateLocation();//move the ships
+    enemies[i].updateLocation();
     stroke(shipCol);
     line(ships[i].x, ships[i].y, ships[i].x+100*cos(ships[i].aim), ships[i].y+100*sin(ships[i].aim));//draws a line from the ship along the aim angle, 100 pixels in length
+    line(enemies[i].x, enemies[i].y, enemies[i].x+100*cos(enemies[i].aim), enemies[i].y+100*sin(enemies[i].aim));//draws a line from the ship along the aim angle, 100 pixels in length
   }
   fill(mCol);
-  ellipse(mouseX, mouseY, 10, 10);//x,y, x radius, y radius.
+  //ellipse(mouseX, mouseY, 10, 10);//x,y, x radius, y radius.
 
   clock = clock+1;//increment clock (used for shooting
   shoot();//calls shoot
@@ -39,20 +46,28 @@ class Ship {
   int x;
   int y;
   float aim;
+  float npcAng; //the angle from the player to the NPC
   color initCol;
   color col;
-  int bMax =60;
+  int bMax =100;
   int bNum=0;
   int bLife = 6000;
+  int bulletNum = 100;
+  int timesHit = 0;
+  int bulletsDeadNumer = 0; //the number of bullets that have gone off the screen.
   Bullet[] bullets = new Bullet[bMax];//each ship owns some bullits
+  //boolean shipType; // true if ship is players ship, false if it is NPC
+  //int unidirectional; //a random angle to  
+  
+  Ship(){} //implicit constructor, neccesary as this is a parent class
 
-  Ship(int initX, int initY, int initAim, int num) {//this is used to create new ships
+  Ship(int initX, int initY, int initAim, int num, color shipColor) {//this is used to create new ships
     shipNum = num;
     x = initX;
     y=initY;
     aim=initAim;
-    initCol = color(random(0, 255), random(0, 255), random(0, 255));
-
+    //initCol = color(random(0, 255), random(0, 255), random(0, 255));
+    initCol = shipColor;
     for (int i=0; i<bullets.length; i++) {//creating a new ship also gives it blank bullets
       bullets[i] = new Bullet(x, y, aim);
     }
@@ -70,7 +85,7 @@ class Ship {
     if (keys[3]) {//d
       x=x+1;
     }
-
+ 
     if (mouseX != x) {//cant devide by 0
       aim =(atan(float(( mouseY-y)/( mouseX-x))));
     } else {
@@ -99,26 +114,146 @@ class Ship {
     }
   }
   void checkHit() {
-    boolean HIT = false;
-    for (int i=0; i<ships.length; i++) {
-      if (i!= shipNum) {
-        for (int j=0; j<bullets.length; j++) {
-          if ((x-15 <= ships[i].bullets[j].currentX) && (x+15 >= ships[i].bullets[j].currentX) && (y-15 <= ships[i].bullets[j].currentY) &&(y+15 >= ships[i].bullets[j].currentY)){
-            HIT = true;
-          }
+    for (int i=0; i<4; i++) {
+      for(int j=0;j<4;j++){
+        if(occupied[i][j] == true) {
+          break;
+        }
+      }
+    } 
+    timesHit++;
+    if(timesHit > 4) {
+      //shipdestroy();
+    }
+    col = color(255,0,0);
+      
+  }
+  
+  boolean checkRange(int x, int y) { //this checks whether there are any bullets within 30 spaces of the range x,y
+    boolean InRange = false;
+    for (int i=0; i<30; i++) {
+      for(int j=0;j<30;j++){
+        if(occupied[i][j] == true) {
+          return true;
         }
       }
     }
-    if (HIT){
-      col = color(255,0,0);
-    }else{
-      col = initCol;
-    }
-      
+    return false;
+  }
+  void shipDestroy(){
+    color c = color(0,255,0);
+    fill(c);
+    ellipse(x, y, 100, 100);
   }
   void draw() {//drawing the ship *replace with better graphics*
     fill(col);
     ellipse(x, y, 15, 15);
+  }
+}
+
+class Enemy extends Ship {
+  int xmov;  // random directions in which the ship will move
+  int ymov;  // 
+  
+  Enemy (int initX, int initY, int initAim, int num, color shipColor) {//this is used to create new ships
+    shipNum = num;
+    x = initX;
+    y=initY;
+    aim=initAim;
+    //initCol = color(random(0, 255), random(0, 255), random(0, 255));
+    initCol = shipColor;
+    for (int i=0; i<bullets.length; i++) {//creating a new ship also gives it blank bullets
+      bullets[i] = new Bullet(x, y, aim);
+    }
+  }
+ 
+  void updateLocation() {
+    if (ships[0].x != x) {//cant devide by 0
+      npcAng =(atan(float(( ships[0].y-y)/( ships[0].x-x)))); //the angle from the player to the NPC
+    } else {
+      npcAng =(atan(float(( ships[0].y-y)/( ships[0].x+1-x))));
+    }
+    if (ships[0].x < x) {
+      npcAng=npcAng+PI;  //adjust for arcTan range
+    }
+    float diff = npcAng - ships[0].aim; // the difference of the players aim and the NPC's position
+    if(diff >= -.139 && diff < .139) {     
+      if(checkRange(x,y) == true) {    // if there's a bullet near, get out of the way
+        if(cos(ships[0].aim) >= 0) {
+          x = x + 1;
+          xmov = 1;
+        }
+        else {
+          x = x - 1;
+          xmov = -1;
+        }
+        if(sin(ships[0].aim) >= 0) {
+          y = y + 1;
+          ymov = 1;
+        }
+        else {
+          y = y - 1;
+          ymov = -1;
+        }
+      }
+    }
+    moveRandom();//if there's no bullet close, move, but do so according to the randoms
+    aimshoot(npcAng);
+    this.draw();
+  }
+  void moveRandom() {
+    int xRand = (int)random(0,1500);
+    if(xRand <= 3) {
+      xmov = xRand-1;
+    }
+    int yRand = (int)random(0,1500);
+    if(yRand <= 3){
+      ymov = yRand-1;
+    }
+    if(x<10) {
+      xmov = 1;
+    }
+    else if(x>=490) {
+      xmov = -1;
+    }
+    if(y<10) {
+      ymov = 1;
+    }
+    else if(y>=490) {
+      ymov = -1;
+    }
+    if(xmov == 1) {
+      x++;
+    }
+    else if(xmov == -1) {
+      x--;
+    }
+    if(ymov == 1) {
+      y++;
+    }
+    else if(ymov == -1) {
+      y--;
+    }
+  }
+  void aimshoot(float npcAng) {  //aims and shoots depending on it's distance to the player and on randomness
+    aim = npcAng;
+    /*if(npcAng < PI) {
+      aim = npcAng + PI;
+    }
+    else {
+      aim = npcAng - PI; //always aims toward the player
+    }*/
+    int distance = (int)sqrt((ships[0].x-x)^2 + (ships[0].y-y)^2);
+    int randNum = (int)random(0,250);
+    int difference = distance + randNum;
+    if (distance < 30 || difference < 40) {
+      shoot();
+    }
+  }
+  void shipDestroy() {
+    color c = color(255,255,255);
+    col = c;
+    bulletNum = 0;
   }
 }
 
@@ -129,15 +264,22 @@ class Bullet {
   int currentY;
   float aim;
   int lifespan;
+  boolean dead; //when the bullet goes out of range or hits someone, it's 'dead' and will be deleted
   Bullet(int x, int y, float angle) {
-    originX = x;
-    originY = y;
     aim = angle;
+    originX = (int)(x + 35*cos(aim));
+    originY = (int)(y + 35*sin(aim));
     lifespan = -1;
   }
   void updateLocation() {
+    if(currentX > 0 && currentX < 500 && currentY > 0 && currentY < 500) {
+      occupied[currentX][currentY] = false;
+    }
     currentX = int(originX+lifespan*cos(aim));
     currentY = int(originY+lifespan*sin(aim));
+    if(currentX > 0 && currentX < 500 && currentY > 0 && currentY < 500) {
+      occupied[currentX][currentY] = true;
+    }    
   }
   void draw() {
     ellipse(currentX, currentY, 5, 5);//pew pew
@@ -160,6 +302,9 @@ void shoot() {
   }
 }
 
+void mousePressed() {
+  
+}
 
 void keyPressed() {//as long as a key is pressed, use it in program
   if (key=='w') {
