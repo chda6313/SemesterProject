@@ -1,3 +1,4 @@
+
 color shipCol = color(10); //default color is black
 color mCol = color(255, 0, 0);
 int x=250;
@@ -5,7 +6,7 @@ int y=250;
 int clock=0;
 boolean isShooting=false;
 boolean[] keys = {false, false, false, false,false};//w,a,s,d, mouseclick
-boolean[][] occupied = new boolean[500][500];
+int[][] occupied = new int[500][500];
 float aimAngle = 0;
 color tan = color(254,232,198);
 color blackbrown = color(75,45,30);
@@ -89,6 +90,8 @@ class Ship {
   int bLife = 6000;
   int bulletNum = 100;
   int timesHit = 0;
+  int circle[] = new int[20];       //this is used to store the id values of bullets it has been hit by so that they are not double counted
+  int circleInt = 0;                    
   Bullet[] bullets = new Bullet[bMax];//each ship owns some bullets
   
   Ship(){} //implicit constructor, neccesary as this is a parent class
@@ -149,14 +152,21 @@ class Ship {
   void checkHit() {
     for (int i=x-4; i<x+5; i++) {
       for(int j=y-4;j<y+5;j++){
-        if(occupied[i][j] == true) {
-          if (col != color(255,0,0)) {
+        if(occupied[i][j] != 0) {                       // if there is a bullet there
+          if(searchValue(occupied[i][j]) == false) {    // and the bullet hasn't been counted yet
             if(shipNum == 0) {
               npcScore++;
             }
-            else{
+            else {
               playerScore++;
             }
+            if(circleInt == 19) {                       //circle has 20 spaces, continually replaces the older additions
+              circleInt = 0;
+            }
+            else {
+              circleInt++;
+            }
+            circle[circleInt] = occupied[i][j]; 
           }
           col = color(255,0,0);
           return;
@@ -164,12 +174,14 @@ class Ship {
       }
     } 
     col = initCol;
-    //timesHit++;
-    //if(timesHit > 4) {
-      //shipdestroy();
-    //}
-    //col = color(255,0,0);
-      
+  }
+  boolean searchValue(int value) { //searches through the 20 saved bullets that the player has been hit by
+    for(int i = 0; i < circle.length; i++) {
+      if(circle[i] == value) {
+        return true;
+      }
+    }
+    return false;
   }
   
   /*void shipDestroy(){
@@ -276,7 +288,7 @@ class Enemy extends Ship { //the NPC
   Vector checkRange(int x, int y) { //this checks whether there are any bullets within 30 spaces of the range x,y
     for (int i=x-15; i<x+16; i++) { //this doesn't currently work
       for(int j=y-15; j<x+16; j++){
-        if(occupied[i][j] == true) {
+        if(occupied[i][j] != 0) {
           return new Vector(i,j);
         }
       }
@@ -303,7 +315,9 @@ class Bullet {
   int lifespan;
   //boolean dead; //when the bullet goes out of range or hits someone, it's 'dead' and will be deleted
   color bulletColor;
+  int bulletID;
   Bullet(int x, int y, float angle, color bulletColor) {
+    bulletID = int(random(1,10000)); //gives the bullet an ID which is, with high probability, unique compared to nearby bullets
     aim = angle;
     originX = (int)(x + 35*cos(aim));
     originY = (int)(y + 35*sin(aim));
@@ -312,12 +326,12 @@ class Bullet {
   }
   void updateLocation() {
     if(currentX > 0 && currentX < 500 && currentY > 0 && currentY < 500) {
-      occupied[currentX][currentY] = false;     // as the bullet is about to leave this location, it is no longer occupied
+      occupied[currentX][currentY] = 0;     // as the bullet is about to leave this location, it is no longer occupied
     }
     currentX = int(originX+lifespan*cos(aim));
     currentY = int(originY+lifespan*sin(aim));
     if(currentX > 0 && currentX < 500 && currentY > 0 && currentY < 500) {
-      occupied[currentX][currentY] = true;      // a bullet is in this location, a ship here will be hit
+      occupied[currentX][currentY] = bulletID;      // a bullet is in this location, a ship here will be hit
     }    
   }
   void draw() {
