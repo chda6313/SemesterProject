@@ -1,3 +1,4 @@
+import java.util.Arrays;
 
 color shipCol = color(10); //default color is black
 color mCol = color(255, 0, 0);
@@ -15,6 +16,10 @@ int npcScore = 0;
 boolean gamestart = true; 
 int numberNPC = 1;
 boolean shipsset = false;
+boolean unittest = false;  //if this is true, unit tests will be conducted
+boolean testsPassed = true;
+boolean testDone = false;
+String[] failureMessage = new String[8];
 
 Ship[] ships = new Ship[1]; //create array of players, should be able to take data from SQL
 Enemy[] enemies;// = new Enemy[1];
@@ -28,6 +33,9 @@ void setup() {
 
 void draw() {
   background(240);//without this line, past images of ships would stay on screen
+  if(unittest == true) {
+    gamestart = false;
+  }
   if(gamestart) { // first promp will ask users how many NPC's they want
     fill(0,0,0);
     textSize(35);
@@ -39,6 +47,15 @@ void draw() {
     fill(0,0,0);
     text("1",160,270);
     text("2",260,270);
+    /*if(unittest) {
+      String message = unitTests();
+      if(!message.equals("0")) {
+        fill(255,0,0);
+        textSize(30);
+        text(message,400,400);
+      }
+      text("passed",400,400);
+    }*/
   }
   else if(shipsset == false) {    // creates the ships and the enemy ships, however many there are, will only excecute once
     ships[0] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, 0,tan);
@@ -47,6 +64,29 @@ void draw() {
       enemies[i-1] = new Enemy(int(random(0, 500)), int(random(0, 500)), 0, i,blackbrown);
     }
     shipsset = true;
+  }
+  else if(unittest == true) {
+    if (testDone == false) {
+      failureMessage = unitTests();//testMovement();//unitTests();
+      testDone = true;
+    }
+    else {
+      if (testsPassed) {
+        fill(10,160,10);
+      }
+      else {
+        fill(255,0,0);
+      }
+      textSize(30);
+      text("Unit Testing",100,200);
+      textSize(20);
+      String nat = "";//Arrays.toString(failureMessage);
+      for(int i=0; i<8;i++) {
+        nat = failureMessage[i];
+        text(nat,20,300 + 30*i);
+      }
+      //text(nat,100,400);
+    }
   }
   else {
     line(0,0,0, 500);
@@ -397,4 +437,189 @@ void keyReleased() {//other case
   if (key=='d' || key == 'D') {
     keys[3]=false;
   }
+}
+
+String[] unitTests() { 
+  return testMovement();
+}
+
+String[] testMovement() {
+  String[] testsResult = {"Y Minus test passed","Y Plus test passed","X Minus test passed","X Plus test passed","Diagnol X minus and Y minus test passed",
+                "Diagnol X plus and Y minus test passed","Diagnol X minus and Y plus test passed","Diagnol X plus and Y plus test passed"};
+  for(int i = 0; i < 5000; i++) {
+    int firstRand = int(random(1,9));
+    if(firstRand == 1) {
+      int randNum = int(random(1,25));
+      if(!testYminus(randNum)) {
+        testsResult[0] = "failed Y minus test";
+        testsPassed = false;
+      }
+    }
+    else if(firstRand == 2) {
+      int randNum = int(random(1,25));
+      if(!testYplus(randNum)) {
+        testsResult[1] = "failed Y plus test";
+        testsPassed = false;
+      }
+    }
+    else if(firstRand == 3) {
+      int randNum = int(random(1,25));
+      if(!testXminus(randNum)) {
+        testsResult[2] = "failed X minus test";
+        testsPassed = false;
+      }
+    }
+    else if(firstRand == 4) {
+      int randNum = int(random(1,25));
+      if(!testXplus(randNum)) {
+        testsResult[3] = "failed X plus test";
+        testsPassed = false;
+      }
+    }
+    else if(firstRand == 5) {
+      int randNum = int(random(1,25));
+      if(!testDiagxMyM(randNum)) {
+        testsResult[4] = "failed Diagnol X minus and Y minus test";
+        testsPassed = false;
+      }
+    }
+    else if(firstRand == 6) {
+      int randNum = int(random(1,25));
+      if(!testDiagxPyM(randNum)) {
+        testsResult[5] = "failed Diagnol X plus and Y minus test";
+        testsPassed = false;
+      }
+    }
+    else if(firstRand == 7) {
+      int randNum = int(random(1,25));
+      if(!testDiagxMyP(randNum)) {
+        testsResult[6] = "failed Diagnol X minus and Y plus test";
+        testsPassed = false;
+      }
+    }
+    else if(firstRand == 8) {
+      int randNum = int(random(1,25));
+      if(!testDiagxPyP(randNum)) {
+        testsResult[7] = "failed Diagnol X plus and Y plus test";
+        testsPassed = false;
+      }
+    }
+  }
+  return testsResult;
+}
+
+boolean testYminus(int times) {
+  for(int i = 0; i < times; i++) {
+    int init = ships[0].y;
+    keys[0] = true;
+    ships[0].updateLocation();
+    keys[0] = false;
+    if(ships[0].y >= init && init > 10) { //if it moved in the wrong direction or did not move
+      return false;
+    }
+  }
+  return true;
+}
+
+boolean testYplus(int times) {
+  for(int i = 0; i < times; i++) {
+    int init = ships[0].y;
+    keys[2] = true;
+    ships[0].updateLocation();
+    keys[2] = false;
+    if(ships[0].y <= init && init < 490) { //if it moved in the wrong direction or did not move
+      return false;
+    }
+  }
+  return true;
+}
+
+boolean testXminus(int times) {
+  for(int i = 0; i < times; i++) {
+    int init = ships[0].x;
+    keys[1] = true;
+    ships[0].updateLocation();
+    keys[1] = false;
+    if(ships[0].x >= init && init > 10) { //if it moved in the wrong direction or did not move
+      return false;
+    }
+  }
+  return true;
+}
+
+boolean testXplus(int times) {
+  for(int i = 0; i < times; i++) {
+    int init = ships[0].x;
+    keys[3] = true;
+    ships[0].updateLocation();
+    keys[3] = false;
+    if(ships[0].x <= init && init < 490) { //if it moved in the wrong direction or did not move
+      return false;
+    }
+  }
+  return true;
+}
+
+boolean testDiagxMyM(int times) {   //simulates pressing two keys at once
+  for(int i = 0; i < times; i++) {
+    int initX = ships[0].x;
+    int initY = ships[0].y;
+    keys[0] = true;
+    keys[1] = true;
+    ships[0].updateLocation();
+    keys[0] = false;
+    keys[1] = false;
+    if((ships[0].x >= initX && initX > 10) || (ships[0].y >= initY && initY > 10)) { //if it moved in the wrong direction or did not move
+      return false;
+    }
+  }
+  return true;
+}
+
+boolean testDiagxPyM(int times) {   //simulates pressing two keys at once
+  for(int i = 0; i < times; i++) {
+    int initX = ships[0].x;
+    int initY = ships[0].y;
+    keys[0] = true;
+    keys[3] = true;
+    ships[0].updateLocation();
+    keys[0] = false;
+    keys[3] = false;
+    if((ships[0].x <= initX && initX < 490) || (ships[0].y >= initY && initY > 10)) { //if it moved in the wrong direction or did not move
+      return false;
+    }
+  }
+  return true;
+}
+
+boolean testDiagxMyP(int times) {   //simulates pressing two keys at once
+  for(int i = 0; i < times; i++) {
+    int initX = ships[0].x;
+    int initY = ships[0].y;
+    keys[2] = true;
+    keys[1] = true;
+    ships[0].updateLocation();
+    keys[2] = false;
+    keys[1] = false;
+    if((ships[0].x >= initX && initX > 10) || (ships[0].y <= initY && initY < 490)) { //if it moved in the wrong direction or did not move
+      return false;
+    }
+  }
+  return true;
+}
+
+boolean testDiagxPyP(int times) {   //simulates pressing two keys at once
+  for(int i = 0; i < times; i++) {
+    int initX = ships[0].x;
+    int initY = ships[0].y;
+    keys[2] = true;
+    keys[3] = true;
+    ships[0].updateLocation();
+    keys[2] = false;
+    keys[3] = false;
+    if((ships[0].x <= initX && initX < 490) || (ships[0].y <= initY && initY < 490)) { //if it moved in the wrong direction or did not move
+      return false;
+    }
+  }
+  return true;
 }
