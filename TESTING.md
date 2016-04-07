@@ -13,6 +13,7 @@ User Acceptance Tests:
   - Additionally, clicking shoots exactly one shot in the the direction of the user mouse
 - Whenever a user, or NPC is hit the scoreboard must update the appropriate score by 1 point
   - When hit, sprites must flash momentarily as an indication of contact with a shot
+- Game opens in browser
 - (Future) Multiple users can connect to the lobby
 
 https://github.com/chda6313/SemesterProject/blob/master/unittests.png
