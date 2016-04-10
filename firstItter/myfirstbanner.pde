@@ -497,7 +497,7 @@ void mouseClicked() {
     }
     else if(mouseX > 30 && mouseX < 440 && mouseY > 405 && mouseY < 495) {
       color thisColor = get(mouseX,mouseY);
-      if(thisColor != color(240)) {
+      if(thisColor != color(240) && thisColor != color(0)) {
         userColor = thisColor;
       }
     }
