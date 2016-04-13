@@ -25,6 +25,8 @@ color startColor2 = color(221,12,15);
 int startColor1Value = 0;
 boolean startColor1Change = true;
 color userColor = tan;
+PImage bg;
+int bg_num = 0;
 
 Ship[] ships = new Ship[1]; //create array of players, should be able to take data from SQL
 Enemy[] enemies;// = new Enemy[1];
@@ -33,11 +35,13 @@ void settings() {//this allows for dynamic sizeing etc
 void setup() {
   size(501, 601);//set window size
   frameRate(600);//set refresh rate
+  bg = loadImage("grey.png");
   background(240);//background color 0=black 255=white
 }
 
 void draw() {
   background(240);//without this line, past images of ships would stay on screen
+  image(bg, 1, 1);
   if(unittest == true) {
     gamestart = false;
   }
@@ -114,6 +118,10 @@ void draw() {
       }
       text("passed",400,400);
     }*/
+    rect(345,565,110,-20);
+    fill(0,0,0);
+    textSize(10);
+    text("Change Background?",350,560)
   }
   else if(shipsset == false) {    // creates the ships and the enemy ships, however many there are, will only excecute once
     ships[0] = new Ship(int(random(0, 500)), int(random(0, 500)), 0, 0,userColor);
@@ -503,6 +511,20 @@ void mouseClicked() {
     }
     else if(mouseX > 150 && mouseX < 300 && mouseY > 525 && mouseY < 575) {
       gamestart = false;
+    }
+    else if(mouseX > 345 && mouseX < 455 && mouseY > 545 && mouseY < 565) {
+      if(bg_num == 0) {
+        bg_num = 1;
+	bg = loadImage("Space.jpg");
+      }
+      else if(bg_num == 1) {
+        bg_num = 2;
+	bg = loadImage("underwater.gif");
+      }
+      else if(bg_num == 2) {
+        bg_num = 0;
+	bg = loadImage("grey.png");
+      }
     }
   }
   else {
