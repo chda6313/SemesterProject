@@ -48,8 +48,11 @@ void draw() {
   if (bg_num != -1) {
     image(bg, 1, 1);
   }
-  if (npcScore > 9) {
-    gameEnd();//this line is the line that brings the game back to main screen when the score in the line above is reached
+  if (npcScore ==10) {
+    gameEnd();//this line is the line that brings the game back to main screen when the score in the line above is reached by the npc
+  }
+  if (playerScore == 10) {
+    gameEnd();
   }
   if(unittest == true) {
     gamestart = false;
