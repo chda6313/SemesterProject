@@ -52,7 +52,7 @@ void draw() {
     //rect(70,30,350,90);
     fill(startColor1);
     textSize(45);
-    text("Rage Machine",45,110);
+    text("Rage Machine",100,110);
     textSize(20);
     text("Created by",200,160);
     text("Charles Davies * Zachary Johnson",100,190);
