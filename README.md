@@ -1,6 +1,6 @@
 # CSCI 3308 SemesterProject
 
-**Title:** Bullet Hell Multiplayer Game (wip)
+**Title:** Rage Machine
 
 **Who:** Zachary Johnson, Booker Lightman, Charles Davies, Jonathan Odom
 
