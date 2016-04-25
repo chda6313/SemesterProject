@@ -49,7 +49,7 @@ void draw() {
     image(bg, 1, 1);
   }
   if (npcScore > 9) {
-    gameEnd();
+    gameEnd();//this line is the line that brings the game back to main screen when the score in the line above is reached
   }
   if(unittest == true) {
     gamestart = false;
