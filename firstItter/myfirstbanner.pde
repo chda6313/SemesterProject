@@ -41,6 +41,8 @@ void setup() {
 
 void gameEnd() {
   gamestart = true;
+  npcScore = 0;
+  playerScore = 0;
 }
 
 void draw() {
