@@ -51,8 +51,8 @@ void draw() {
     //fill(startColor2);
     //rect(70,30,350,90);
     fill(startColor1);
-    textSize(75);
-    text("Bullet Hell",80,90);
+    textSize(45);
+    text("The Rage Machine",45,110);
     textSize(20);
     text("Created by",200,160);
     text("Charles Davies * Zachary Johnson",100,190);
