@@ -39,10 +39,17 @@ void setup() {
   background(240);//background color 0=black 255=white
 }
 
+void gameEnd() {
+  gamestart = true;
+}
+
 void draw() {
   background(240);//without this line, past images of ships would stay on screen
   if (bg_num != -1) {
     image(bg, 1, 1);
+  }
+  if (npcScore > 9) {
+    gameEnd();
   }
   if(unittest == true) {
     gamestart = false;
@@ -755,7 +762,4 @@ boolean testDiagxPyP(int times) {   //simulates pressing two keys at once
     }
   }
   return true;
-}
-
-void gameEnd(){
 }
