@@ -756,3 +756,6 @@ boolean testDiagxPyP(int times) {   //simulates pressing two keys at once
   }
   return true;
 }
+
+void gameEnd(){
+}
