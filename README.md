@@ -44,3 +44,16 @@
 **Project Tracking Software:** GitHub, Trello
 
 [Trello Page](https://trello.com/b/OIUHQmfh/3308-project)
+
+**Instructions for Usage**
+* After downloading the zip file, within the firstItter folder there should be a file called "page.html".
+* Open this file in your local Firefox browser (ideally an old version, on the VM for instance)
+* The game should open in browser.
+* Click either the 1 or 2 button to choose the number of NPC enemies
+* Click any of the colored boxes to alter the player sprite color
+* Click Change Background to change background
+* Press start to begin the game
+* W, A, S, D to move
+* Aim with mouse
+* Click to shoot
+* First person to 10 points wins (NPC or player)
